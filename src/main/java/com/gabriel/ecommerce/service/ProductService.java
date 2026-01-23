@@ -1,6 +1,7 @@
 package com.gabriel.ecommerce.service;
 
 import com.gabriel.ecommerce.entity.Product;
+import com.gabriel.ecommerce.exception.ProductNotFoundException;
 import com.gabriel.ecommerce.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +22,7 @@ public class ProductService {
 
     public Product findById(Long id) {
         return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
+                .orElseThrow(() -> new ProductNotFoundException("Produto não encontrado"));
     }
 
     public Product save(Product product) {
