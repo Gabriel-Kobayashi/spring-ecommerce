@@ -1,5 +1,6 @@
 package com.gabriel.ecommerce.service;
 
+import com.gabriel.ecommerce.dto.product.ProductRequestDto;
 import com.gabriel.ecommerce.entity.Product;
 import com.gabriel.ecommerce.exception.ProductNotFoundException;
 import com.gabriel.ecommerce.repository.ProductRepository;
@@ -25,17 +26,23 @@ public class ProductService {
                 .orElseThrow(() -> new ProductNotFoundException("Produto não encontrado"));
     }
 
-    public Product save(Product product) {
+    public Product save(ProductRequestDto dto) {
+        Product product = new Product();
+        product.setName(dto.name());
+        product.setDescription(dto.description());
+        product.setPrice(dto.price());
+        product.setStock(dto.stock());
+
         return repository.save(product);
     }
 
-    public Product update(Long id, Product product) {
+    public Product update(Long id, ProductRequestDto dto) {
         Product existing = findById(id);
 
-        existing.setName(product.getName());
-        existing.setDescription(product.getDescription());
-        existing.setPrice(product.getPrice());
-        existing.setStock(product.getStock());
+        existing.setName(dto.name());
+        existing.setDescription(dto.description());
+        existing.setPrice(dto.price());
+        existing.setStock(dto.stock());
 
         return repository.save(existing);
     }
