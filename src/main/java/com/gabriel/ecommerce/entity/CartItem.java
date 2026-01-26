@@ -1,5 +1,6 @@
 package com.gabriel.ecommerce.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,6 +20,7 @@ public class CartItem {
     private Long id;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "cart_id", nullable = false)
     private Cart cart;
 

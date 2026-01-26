@@ -6,6 +6,8 @@ import com.gabriel.ecommerce.entity.User;
 import com.gabriel.ecommerce.entity.enums.Role;
 import com.gabriel.ecommerce.exception.EmailAlreadyExistsException;
 import com.gabriel.ecommerce.repository.UserRepository;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +36,18 @@ public class UserService {
         user.setRole(Role.USER);
 
         return repository.save(user);
+    }
+
+    public User findByEmail(String email) {
+        return repository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
+    }
+
+    public User getAuthenticatedUser(UserDetails userDetails) {
+        return repository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException(
+                        "Usuário não encontrado: " + userDetails.getUsername()
+                ));
     }
 
 }
