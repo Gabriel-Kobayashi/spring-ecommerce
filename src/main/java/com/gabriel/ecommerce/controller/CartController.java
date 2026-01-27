@@ -34,7 +34,7 @@ public class CartController {
     public ResponseEntity<CartResponseDto> getCart(@AuthenticationPrincipal UserDetails userDetails) {
         User user = userService.getAuthenticatedUser(userDetails);
         Cart cart = cartService.getCartByUser(user);
-        return ResponseEntity.ok(cartMapper.toDto(cart));
+        return ResponseEntity.ok(cartMapper.toCartResponseDto(cart));
     }
 
     @PostMapping("/items")
@@ -46,7 +46,7 @@ public class CartController {
                 requestDto.productId(),
                 requestDto.quantity()
         );
-        return ResponseEntity.ok(cartMapper.toDto(cart));
+        return ResponseEntity.ok(cartMapper.toCartResponseDto(cart));
     }
 
     @PutMapping("/items/{productId}")
@@ -54,7 +54,7 @@ public class CartController {
         User user = userService.getAuthenticatedUser(userDetails);
 
         Cart cart = cartService.updateQuantity(user, productId, quantityDto.quantity());
-        return ResponseEntity.ok(cartMapper.toDto(cart));
+        return ResponseEntity.ok(cartMapper.toCartResponseDto(cart));
     }
 
     @DeleteMapping("/items/{productId}")

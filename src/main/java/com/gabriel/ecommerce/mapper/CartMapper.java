@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class CartMapper {
 
-    public CartResponseDto toDto(Cart cart) {
+    public CartResponseDto toCartResponseDto(Cart cart) {
         return new CartResponseDto(
                 cart.getId(),
                 cart.getItems().stream()

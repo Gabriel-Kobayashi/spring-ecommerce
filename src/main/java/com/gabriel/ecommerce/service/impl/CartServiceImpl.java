@@ -5,6 +5,7 @@ import com.gabriel.ecommerce.entity.CartItem;
 import com.gabriel.ecommerce.entity.Product;
 import com.gabriel.ecommerce.entity.User;
 import com.gabriel.ecommerce.exception.ProductNotFoundException;
+import com.gabriel.ecommerce.exception.cart.CartItemNotFoundException;
 import com.gabriel.ecommerce.repository.CartItemRepository;
 import com.gabriel.ecommerce.repository.CartRepository;
 import com.gabriel.ecommerce.repository.ProductRepository;
@@ -19,12 +20,10 @@ import java.util.Optional;
 public class CartServiceImpl implements CartService {
 
     private final CartRepository cartRepository;
-    private final CartItemRepository cartItemRepository;
     private final ProductRepository productRepository;
 
-    public CartServiceImpl(CartRepository cartRepository, CartItemRepository cartItemRepository, ProductRepository productRepository) {
+    public CartServiceImpl(CartRepository cartRepository, ProductRepository productRepository) {
         this.cartRepository = cartRepository;
-        this.cartItemRepository = cartItemRepository;
         this.productRepository = productRepository;
     }
 
@@ -44,6 +43,10 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Cart addProduct(User user, Long productId, int quantity) {
+
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantidade deve ser maior que zero");
+        }
 
         Cart cart = getOrCreateCart(user);
 
@@ -72,14 +75,18 @@ public class CartServiceImpl implements CartService {
     @Override
     public Cart updateQuantity(User user, Long productId, int quantity) {
 
+        if (quantity < 0) {
+            throw new IllegalArgumentException("Quantidade inválida");
+        }
+
         Cart cart = getOrCreateCart(user);
 
         CartItem item = cart.getItems().stream()
                 .filter(i -> i.getProduct().getId().equals(productId))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Item não encontrado no carrinho"));
+                .orElseThrow(() -> new CartItemNotFoundException(productId));
 
-        if (quantity <= 0) {
+        if (quantity == 0) {
             cart.getItems().remove(item);
         }
         else {
@@ -94,9 +101,13 @@ public class CartServiceImpl implements CartService {
 
         Cart cart = getOrCreateCart(user);
 
-        cart.getItems().removeIf(
+        boolean removed = cart.getItems().removeIf(
                 item -> item.getProduct().getId().equals(productId)
         );
+
+        if (!removed) {
+            throw new CartItemNotFoundException(productId);
+        }
 
         cartRepository.save(cart);
     }
