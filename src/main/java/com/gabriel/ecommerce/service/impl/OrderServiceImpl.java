@@ -68,4 +68,10 @@ public class OrderServiceImpl implements OrderService {
     public List<Order> getOrdersByUser(User user) {
         return orderRepository.findByUser(user);
     }
+
+    @Override
+    public Order getOrderByIdAndUser(Long orderId, User user) {
+        return orderRepository.findByIdAndUser(orderId, user)
+                .orElseThrow(() -> new RuntimeException("Pedido não encontrado para este usuário"));
+    }
 }

@@ -10,4 +10,6 @@ public interface OrderService {
     Order createOrder(User user);
 
     List<Order> getOrdersByUser(User user);
+
+    Order getOrderByIdAndUser(Long orderId, User user);
 }
