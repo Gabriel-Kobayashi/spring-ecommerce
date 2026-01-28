@@ -3,7 +3,9 @@ package com.gabriel.ecommerce.controller;
 import com.gabriel.ecommerce.dto.order.OrderResponseDto;
 import com.gabriel.ecommerce.entity.Order;
 import com.gabriel.ecommerce.entity.User;
+import com.gabriel.ecommerce.entity.enums.OrderStatus;
 import com.gabriel.ecommerce.mapper.OrderMapper;
+import com.gabriel.ecommerce.repository.OrderRepository;
 import com.gabriel.ecommerce.service.OrderService;
 import com.gabriel.ecommerce.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -21,11 +23,13 @@ public class OrderController {
     private final OrderService orderService;
     private final OrderMapper orderMapper;
     private final UserService userService;
+    private final OrderRepository orderRepository;
 
-    public OrderController(OrderService orderService, OrderMapper orderMapper, UserService userService) {
+    public OrderController(OrderService orderService, OrderMapper orderMapper, UserService userService, OrderRepository orderRepository) {
         this.orderService = orderService;
         this.orderMapper = orderMapper;
         this.userService = userService;
+        this.orderRepository = orderRepository;
     }
 
     @PostMapping
@@ -58,5 +62,20 @@ public class OrderController {
         Order order = orderService.getOrderByIdAndUser(orderId, user);
 
         return ResponseEntity.ok(orderMapper.toResponseDto(order));
+    }
+
+    @PostMapping("/{id}/pay")
+    public ResponseEntity<?> payOrder(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
+
+        User user = userService.findByEmail((userDetails.getUsername()));
+
+        Order order = orderService.getOrderByIdAndUser(id, user);
+
+        orderService.validateOrderForPayment(order, user);
+
+        order.setStatus(OrderStatus.PAID);
+        orderRepository.save(order);
+
+        return ResponseEntity.ok("Pedido pago com sucesso");
     }
 }
