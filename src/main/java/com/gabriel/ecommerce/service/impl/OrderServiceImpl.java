@@ -4,6 +4,7 @@ import com.gabriel.ecommerce.entity.*;
 import com.gabriel.ecommerce.entity.enums.OrderStatus;
 import com.gabriel.ecommerce.exception.EmptyCartException;
 import com.gabriel.ecommerce.exception.OrderNotFoundException;
+import com.gabriel.ecommerce.exception.PaymentNotAllowedException;
 import com.gabriel.ecommerce.repository.OrderRepository;
 import com.gabriel.ecommerce.service.CartService;
 import com.gabriel.ecommerce.service.OrderService;
@@ -76,4 +77,20 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.findByIdAndUser(orderId, user)
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
     }
+
+    @Override
+    public void validateOrderForPayment(Order orderId, User user) {
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new PaymentNotAllowedException("Pedido não encontrado"));
+
+        if (!order.getUser().getId().equals(user.getId())) {
+            throw new PaymentNotAllowedException("Pedido não pertence ao usuário");
+        }
+
+        if (order.getStatus() != OrderStatus.CREATED) {
+            throw new PaymentNotAllowedException("Pedido não pode ser pago nesse status: " + order.getStatus());
+        }
+    }
+
 }

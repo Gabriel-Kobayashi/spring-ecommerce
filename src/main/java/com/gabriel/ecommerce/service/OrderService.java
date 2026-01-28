@@ -12,4 +12,7 @@ public interface OrderService {
     List<Order> getOrdersByUser(User user);
 
     Order getOrderByIdAndUser(Long orderId, User user);
+
+    void validateOrderForPayment(Order orderId, User user);
+
 }
