@@ -15,4 +15,5 @@ public interface OrderService {
 
     void validateOrderForPayment(Long orderId, User user);
 
+    Order payOrder(Long orderId, User user);
 }

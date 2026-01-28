@@ -106,4 +106,27 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
+    @Override
+    @Transactional
+    public Order payOrder(Long orderId, User user) {
+
+        validateOrderForPayment(orderId, user);
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new OrderNotFoundException(orderId));
+
+        Payment payment = paymentRepository.findByOrder(order)
+                .orElseThrow(() -> new PaymentNotAllowedException("Pagamento não encontrado para o pedido"));
+
+        payment.setStatus(PaymentStatus.PAID);
+        payment.setPaidAt(LocalDateTime.now());
+
+        order.setStatus(OrderStatus.PAID);
+        order.setCreatedAt(LocalDateTime.now());
+
+        paymentRepository.save(payment);
+
+        return orderRepository.save(order);
+    }
+
 }

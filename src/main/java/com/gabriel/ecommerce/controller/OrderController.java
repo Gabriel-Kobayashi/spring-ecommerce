@@ -3,9 +3,7 @@ package com.gabriel.ecommerce.controller;
 import com.gabriel.ecommerce.dto.order.OrderResponseDto;
 import com.gabriel.ecommerce.entity.Order;
 import com.gabriel.ecommerce.entity.User;
-import com.gabriel.ecommerce.entity.enums.OrderStatus;
 import com.gabriel.ecommerce.mapper.OrderMapper;
-import com.gabriel.ecommerce.repository.OrderRepository;
 import com.gabriel.ecommerce.service.OrderService;
 import com.gabriel.ecommerce.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -23,13 +21,11 @@ public class OrderController {
     private final OrderService orderService;
     private final OrderMapper orderMapper;
     private final UserService userService;
-    private final OrderRepository orderRepository;
 
-    public OrderController(OrderService orderService, OrderMapper orderMapper, UserService userService, OrderRepository orderRepository) {
+    public OrderController(OrderService orderService, OrderMapper orderMapper, UserService userService) {
         this.orderService = orderService;
         this.orderMapper = orderMapper;
         this.userService = userService;
-        this.orderRepository = orderRepository;
     }
 
     @PostMapping
@@ -65,17 +61,14 @@ public class OrderController {
     }
 
     @PostMapping("/{id}/pay")
-    public ResponseEntity<?> payOrder(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<OrderResponseDto> payOrder(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
 
         User user = userService.findByEmail((userDetails.getUsername()));
 
-        Order order = orderService.getOrderByIdAndUser(id, user);
+        Order order = orderService.payOrder(id, user);
 
-        orderService.validateOrderForPayment(id, user);
+        OrderResponseDto response = orderMapper.toResponseDto(order);
 
-        order.setStatus(OrderStatus.PAID);
-        orderRepository.save(order);
-
-        return ResponseEntity.ok("Pedido pago com sucesso");
+        return ResponseEntity.ok(response);
     }
 }
